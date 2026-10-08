@@ -16,7 +16,7 @@ export default function getTemplate() {
   <form class="new-monster">
       <label class="block mb-4 text-[var(--silver)]">
         Name
-        <input name="monsterName" type="text" class="field" placeholder="The Crawling Mass" />
+        <input name="monsterName" type="text" class="field" placeholder="The Crawling Mass" required />
       </label>
 
       <label class="block mb-4 text-[var(--silver)]">
@@ -33,17 +33,17 @@ export default function getTemplate() {
 
       <label class="block mb-4 text-[var(--silver)]">
         Danger level (1 to 5)
-        <input name="dangerLevel" type="number" min="1" max="5" class="field" placeholder="3" />
+        <input name="dangerLevel" type="number" min="1" max="5" step="1" class="field" placeholder="3" required />
       </label>
 
       <label class="block mb-6 text-[var(--silver)]">
         Release year
-        <input name="monsterYear" type="number" min="1950" max="1969" class="field" placeholder="1957" />
+        <input name="monsterYear" type="number" min="1950" max="1969" step="1" class="field" placeholder="1957" required />
       </label>
-
-      <button class="btn btn-lipstick w-full py-3 px-4 text-lg">Add to the archive</button>
+      <button type="submit" class="btn btn-lipstick w-full py-3 px-4 text-lg">Add to the archive</button>
+    </form>
     </aside>
-</form>
+
     <!-- Section droite pour la liste des créatures -->
     <section class="deco-frame md:w-2/3 p-6 bg-[var(--murk)]/40">
       <div class="flex flex-wrap justify-between items-baseline gap-2 mb-5">

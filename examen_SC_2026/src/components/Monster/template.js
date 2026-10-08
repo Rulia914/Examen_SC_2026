@@ -30,13 +30,13 @@ export default function getTemplate(monster) {
     </td>
     <td class="p-3">
       <div class="flex justify-end gap-2">
-        <button class="btn-check isEditing-visible btn btn-jade py-2 px-3" aria-label="Save">
+        <button type="button" class="btn-check isEditing-visible btn btn-jade py-2 px-3" aria-label="Save">
           <i class="fa-solid fa-check"></i>
         </button>
-        <button class="btn-edit isEditing-hidden btn btn-gold py-2 px-3" aria-label="Edit">
+        <button type="button" class="btn-edit isEditing-hidden btn btn-gold py-2 px-3" aria-label="Edit">
           <i class="fa-solid fa-pen-to-square"></i>
         </button>
-        <button class="btn-delete isEditing-hidden btn btn-lipstick py-2 px-3" aria-label="Delete">
+        <button type="button" class="btn-delete isEditing-hidden btn btn-lipstick py-2 px-3" aria-label="Delete">
           <i class="fa-solid fa-skull"></i>
         </button>
       </div>
