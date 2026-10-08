@@ -7,10 +7,12 @@ export default class Monster {
       this.type = data.type;
       this.dangerLevel = data.dangerLevel;
       this.year = data.year;
+      this.domElt =null;
     }
     render(el) {
-      const template = document.createElement("div");
+      const template = document.createElement("template");
       template.innerHTML = getTemplate(this);
-      el.append(template);
+      this.domElt = template.content.firstElementChild;
+      el.append(this.domElt);
     }
   }
