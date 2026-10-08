@@ -2,6 +2,7 @@ import "../../style.css";
 
 export default function getTemplate(monster) {
   return `
+ 
     <tr class="monster-row">
     <td class="p-3 font-semibold">
       <span class="isEditing-hidden">${monster.name}</span>
@@ -40,5 +41,5 @@ export default function getTemplate(monster) {
         </button>
       </div>
     </td>
-  </tr></li>`;
+  </tr>`;
 }

@@ -2,19 +2,26 @@ import "../../style.css";
 
 export default function getTemplate() {
   return `
+    <header class="text-center mb-10">
+    <p class="text-[var(--silver)] tracking-widest text-sm">A creature feature archive</p>
+    <h1 class="marquee text-6xl md:text-8xl my-3">Monster Archive</h1>
+    <p class="text-[var(--silver)] italic">
+      They rose from the deep between 1950 and 1969. Someone had to keep the records.
+    </p>
+    </header>
    <main class="flex flex-col md:flex-row gap-8">
     <!-- Aside gauche pour le formulaire -->
     <aside class="deco-frame md:w-1/3 p-6 bg-[var(--murk)]/60 self-start">
       <h2 class="display text-2xl mb-5 text-[var(--pearl)]">File a new creature</h2>
-
+  <form class="new-monster">
       <label class="block mb-4 text-[var(--silver)]">
         Name
-        <input type="text" class="field" placeholder="The Crawling Mass" />
+        <input name="monsterName" type="text" class="field" placeholder="The Crawling Mass" />
       </label>
 
       <label class="block mb-4 text-[var(--silver)]">
         Type
-        <select class="field">
+        <select name="monsterType" class="field">
           <option>Giant reptile</option>
           <option>Alien</option>
           <option>Mutant</option>
@@ -26,24 +33,24 @@ export default function getTemplate() {
 
       <label class="block mb-4 text-[var(--silver)]">
         Danger level (1 to 5)
-        <input type="number" min="1" max="5" class="field" placeholder="3" />
+        <input name="dangerLevel" type="number" min="1" max="5" class="field" placeholder="3" />
       </label>
 
       <label class="block mb-6 text-[var(--silver)]">
         Release year
-        <input type="number" min="1950" max="1969" class="field" placeholder="1957" />
+        <input name="monsterYear" type="number" min="1950" max="1969" class="field" placeholder="1957" />
       </label>
 
       <button class="btn btn-lipstick w-full py-3 px-4 text-lg">Add to the archive</button>
     </aside>
-
+</form>
     <!-- Section droite pour la liste des créatures -->
     <section class="deco-frame md:w-2/3 p-6 bg-[var(--murk)]/40">
       <div class="flex flex-wrap justify-between items-baseline gap-2 mb-5">
         <h2 class="display text-2xl">The archive</h2>
         <p class="text-[var(--silver)]">
           Creatures on file :
-          <span class="display text-2xl text-[var(--gold)]">xxx</span>
+          <span class="display text-2xl text-[var(--gold)] monster-count">xxx</span>
         </p>
       </div>
 
@@ -62,9 +69,7 @@ export default function getTemplate() {
               <th class="text-right p-3">Actions</th>
             </tr>
           </thead>
-          <tbody>
-            <!-- Ligne en mode affichage -->
-            ${MonsterList.monsters.map((monster) => monster.render()).join("")}
+          <tbody class="monsters-list">
           </tbody>
         </table>
       </div>
