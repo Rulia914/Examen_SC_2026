@@ -5,12 +5,12 @@ export default class DB {
   
     static async findAll() {
       //transaction vers l'API
-      const response = await fetch(this.apiURL + "monsters");
+      const response = await fetch(this.apiURL + "monsters/");
       return response.json();
     }
 
     static async create(monster){
-      const response = await fetch(this.apiURL + "monsters", {
+      const response = await fetch(this.apiURL + "monsters/", {
         method: "POST",
         headers: {"content-Type": "application/JSON"},
         body: JSON.stringify(monster),
@@ -23,5 +23,17 @@ export default class DB {
         method: "DELETE"
       });
       return response.json(); 
+    }
+
+    static async updateOne(id, monster){
+      const response = await fetch(this.apiURL + "monsters/" + id, {
+        method: "PUT",
+        headers: {"content-Type": "application/JSON"},
+        body: JSON.stringify(monster),
+      });
+      if (!response.ok) {
+        throw new Error(`Monster update failed: ${response.status}`);
+      }
+      return response.json();
     }
   }

@@ -57,58 +57,55 @@ export default class MonsterList {
   }
 
   initEvents() {
-    //Ajouter un monstre
-
-    // Cherche dans le composant l'élément portant la classe ".new-monster".
+    // Formulaire d'ajout d'un monstre
     const form = this.domElt.querySelector(".new-monster");
-    console.log(form);
-    // En théorie, on écoute l'envoi du formulaire pour traiter tous ses champs ensemble.
     form.addEventListener("submit", async (e) => {
-      // Empêche le navigateur de recharger la page à l'envoi du formulaire.
       e.preventDefault();
-      // Lire les champs du formulaire
       const formData = new FormData(form);
-      // Crée l'objet de données attendu par l'API à partir des champs du formulaire.
+  
       const monster = new Monster({
         name: formData.get("monsterName"),
         type: formData.get("monsterType"),
         dangerLevel: Number(formData.get("dangerLevel")),
         year: Number(formData.get("monsterYear")),
       });
-
+  
       await this.addMonster(monster);
       form.reset();
     });
-
-    //Supprimer un monstre
-
-    // Ajoute un seul écouteur de clic sur la liste des monstres.
-    this.listDomElt.addEventListener("click", (e) => {
-      // Cherche le bouton concerné, même si le clic est sur son icône.
+  
+    // Gestion des clics sur la liste (Délégation d'événements)
+    this.listDomElt.addEventListener("click", async (e) => {
+      // 1. Détection du bouton : cherche le bouton <button> le plus proche de l'élément cliqué (gère le clic sur l'icône <i> à l'intérieur)
       const button = e.target.closest("button");
-      // Arrête le traitement si le clic n'était pas sur un bouton.
-      if (!button) return;
-
-      // Remonte du bouton jusqu'à la ligne du monstre.
+      if (!button) return; // Interrompt l'exécution si le clic n'a pas eu lieu sur un bouton
+    
+      // 2. Identification de la ligne : remonte du bouton vers la ligne <tr> correspondante du tableau
       const row = button.closest(".monster-row");
-      // Arrête le traitement si le bouton n'est pas dans une ligne de monstre.
-      if (!row) return;
-
-      // Cherche dans le tableau l'objet Monster qui possède cette ligne HTML.
+      if (!row) return; // Interrompt l'exécution si le bouton n'appartient pas à une ligne du tableau
+    
+      // 3. Liaison DOM -> Instance JS : recherche dans le tableau `monsters` l'objet Monster associé à cette ligne HTML
       const monster = this.monsters.find((item) => item.domElt === row);
-      // Arrête le traitement si aucun objet Monster ne correspond à cette ligne.
-      if (!monster) return;
-
-      // Récupère l'identifiant depuis l'objet Monster.
-      const id = monster.id;
-
-      // Vérifie que le bouton cliqué est bien le bouton Delete du template.
+      if (!monster) return; // Interrompt l'exécution si aucune instance JS ne correspond au nœud DOM
+    
+      // 4. Action de suppression : si le bouton possède la classe CSS ".btn-delete"
       if (button.classList.contains("btn-delete")) {
-        // Demande à la liste de supprimer ce monstre par son identifiant.
-        this.deleteOneById(id);
+        // Appelle la méthode du composant parent pour supprimer le monstre via son ID dans la DB et dans le DOM
+        this.deleteOneById(monster.id);
       }
-
-      // Plus tard, les boutons Edit et Validate pourront être traités ici aussi.
+    
+      // 5. Action d'édition : si le bouton possède la classe CSS ".btn-edit"
+      if (button.classList.contains("btn-edit")) {
+        // Bascule l'instance en mode édition (ajoute la classe CSS .isEditing sur la ligne)
+        console.log("Clic détecté sur le bouton check pour le monstre :", monster.id);
+        await monster.edit();
+      }
+    
+      // 6. Action de validation : si le bouton possède la classe CSS ".btn-check"
+      if (button.classList.contains("btn-check")) {
+        // Exécute la sauvegarde asynchrone (envoie le PATCH à l'API, met à jour l'instance, rafraîchit l'affichage et retire la classe .isEditing)
+        await monster.saveUpdate();
+      }
     });
   }
 }
