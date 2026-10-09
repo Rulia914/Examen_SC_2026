@@ -1,5 +1,3 @@
-import "../../style.css";
-
 export default function getTemplate() {
   return `
     <header class="text-center mb-10">
