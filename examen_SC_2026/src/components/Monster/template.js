@@ -19,7 +19,7 @@ export default function getTemplate(monster) {
     </td>
     <td class="p-3 whitespace-nowrap">
       <!-- Base : afficher le chiffre. Bonus : afficher autant de ☠️ que le niveau -->
-      <span class="isEditing-hidden" title="${monster.dangerLevel}">${monster.dangerLevel}</span>
+      <span class="isEditing-hidden" title="${monster.dangerLevel}">${monster.skulls}</span>
       <input type="number" min="1" max="5" class="input-danger isEditing-visible field" value="${monster.dangerLevel}" />
     </td>
     <td class="p-3">

@@ -1,0 +1,686 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+src/
+  components/
+    Monster/
+      Monster.js
+      template.js
+    monsterList/
+      MonsterList.js
+      template.js
+  DB.js
+  main.js
+  style.css
+.gitignore
+index.html
+package.json
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="src/components/Monster/Monster.js">
+import DB from "../../DB";
+import getTemplate from "./template";
+
+// Représente un monstre et synchronise ses données avec sa ligne HTML.
+export default class Monster {
+  constructor(data) {               //reçoit les données d’un monstre.
+                                    //conserve les données reçues de l'API.
+    this.id = data.id;
+    this.name = data.name;
+    this.type = data.type;
+    this.dangerLevel = data.dangerLevel;
+    this.year = data.year;
+    // La ligne n'existe pas encore ; render() l'initialisera.
+    this.domElt = null;
+  }
+ 
+  get skulls() {
+    return '☠️'.repeat(this.dangerLevel);
+  }
+
+  // Crée et ajoute la ligne du monstre, puis synchronise ses champs.
+  render() {
+    const template = document.createElement("template");
+                                      //crée un conteneur HTML temporaire
+    template.innerHTML = getTemplate(this);
+                                      //génère la ligne à partir des données de cette instance
+    this.domElt = template.content.firstElementChild;
+                                      //récupère l'élément racine
+    
+    this.updateDOM();  
+    return this.domElt;         
+  }
+
+  // Recopie les propriétés de l'instance dans les champs et le texte affiché.
+  updateDOM() {
+    // Met à jour le champ modifiable et le texte visible du nom.
+    this.domElt.querySelector(".input-name").value = this.name;
+                                        //cherche le champ du nom dans cette ligne et place le nom dans le champ modifiable
+    this.domElt.querySelector(".input-name").closest("td").querySelector(".isEditing-hidden").textContent = this.name;
+                                        //remonte à la cellule qui contient ce champ, cherche dans cette cellule l’élément prévu pour afficher le texte hors édition, actualise le texte visible.
+
+    // Met à jour le champ de sélection et le texte visible du type.
+    this.domElt.querySelector(".input-type").value = this.type;
+    this.domElt.querySelector(".input-type").closest("td").querySelector(".isEditing-hidden").textContent = this.type;
+
+    // Met à jour le champ numérique et le texte visible du niveau de danger.
+   this.domElt.querySelector(".input-danger").value = this.dangerLevel;
+    
+    const dangerSpan = this.domElt.querySelector(".input-danger").closest("td").querySelector(".isEditing-hidden");
+    dangerSpan.textContent = this.skulls; // <-- Utilise bien this.skulls ici et non this.dangerLevel
+    dangerSpan.title = this.dangerLevel;
+
+    // Met à jour le champ modifiable et le texte visible de l'année.
+    this.domElt.querySelector(".input-year").value = this.year;
+    this.domElt.querySelector(".input-year").closest("td").querySelector(".isEditing-hidden").textContent = this.year;
+  }
+
+  // Active le mode édition ; les règles CSS affichent alors les champs de saisie.
+  edit() {
+    this.domElt.classList.add("isEditing");
+  }
+
+  // Lit les champs, enregistre les données auprès de l'API et actualise l'affichage.
+  async saveUpdate() {
+    // Rassemble les valeurs actuelles des champs de cette ligne.
+    const updatedData = {
+      name: this.domElt.querySelector(".input-name").value,
+      type: this.domElt.querySelector(".input-type").value,
+      dangerLevel: Number(this.domElt.querySelector(".input-danger").value),
+      year: Number(this.domElt.querySelector(".input-year").value),
+    };
+
+    // Attend la réponse de l'API avant de modifier les données locales.
+    const saved = await DB.updateOne(this.id, updatedData);
+
+    // Met à jour l'instance avec les données renvoyées par l'API.
+    this.name = saved.name;
+    this.type = saved.type;
+    this.dangerLevel = saved.dangerLevel;
+    this.year = saved.year;
+
+    // Affiche les nouvelles valeurs dans la ligne.
+    this.updateDOM();
+
+    // Quitte le mode édition après l'enregistrement.
+    this.domElt.classList.remove("isEditing");
+  }
+}
+</file>
+
+<file path="src/components/Monster/template.js">
+export default function getTemplate(monster) {
+  return `
+ 
+    <tr class="monster-row">
+    <td class="p-3 font-semibold">
+      <span class="isEditing-hidden">${monster.name}</span>
+      <input type="text" class="input-name isEditing-visible field" value="${monster.name}" />
+    </td>
+    <td class="p-3">
+      <span class="isEditing-hidden">Deep-sea creature</span>
+      <select class="input-type isEditing-visible field">
+        <option>Giant reptile</option>
+        <option>Alien</option>
+        <option>Mutant</option>
+        <option>Giant insect</option>
+        <option>Robot</option>
+        <option selected>Deep-sea creature</option>
+      </select>
+    </td>
+    <td class="p-3 whitespace-nowrap">
+      <!-- Base : afficher le chiffre. Bonus : afficher autant de ☠️ que le niveau -->
+      <span class="isEditing-hidden" title="${monster.dangerLevel}">${monster.skulls}</span>
+      <input type="number" min="1" max="5" class="input-danger isEditing-visible field" value="${monster.dangerLevel}" />
+    </td>
+    <td class="p-3">
+      <span class="isEditing-hidden">${monster.year}</span>
+      <input type="number" min="1950" max="1969" class="input-year isEditing-visible field" value="${monster.year}" />
+    </td>
+    <td class="p-3">
+      <div class="flex justify-end gap-2">
+        <button type="button" class="btn-check isEditing-visible btn btn-jade py-2 px-3" aria-label="Save">
+          <i class="fa-solid fa-check"></i>
+        </button>
+        <button type="button" class="btn-edit isEditing-hidden btn btn-gold py-2 px-3" aria-label="Edit">
+          <i class="fa-solid fa-pen-to-square"></i>
+        </button>
+        <button type="button" class="btn-delete isEditing-hidden btn btn-lipstick py-2 px-3" aria-label="Delete">
+          <i class="fa-solid fa-skull"></i>
+        </button>
+      </div>
+    </td>
+  </tr>`;
+}
+</file>
+
+<file path="src/components/monsterList/MonsterList.js">
+import DB from "../../DB";
+import Monster from "../Monster/Monster";
+import getTemplate from "./template";
+
+// Gère la collection de monstres, son affichage et les actions de la liste.
+export default class MonsterList {
+  constructor(data) {
+    // Récupère le conteneur principal et prépare le conteneur de la liste.
+    this.domElt = document.querySelector(data.el);
+    this.listDomElt = null;
+    // Configure l'URL de l'API avant de charger les monstres.
+    DB.setApiURL(data.apiURL);
+    this.monsters = [];
+    this.loadMonsters();
+  }
+
+  // Trie les monstres selon la colonne cliquée et inverse l'ordre si on clique deux fois
+  trierMonstres(critere) {
+    // 1. Initialisation de l'état du tri si ce n'est pas encore fait.
+    // On mémorise quelle colonne a été triée et dans quel sens (croissant/décroissant).
+    if (!this.lastSort) {
+      this.lastSort = { colonne: null, smallToLarg: true };
+    }
+
+    // 2. Gestion de l'alternance du sens de tri :
+    // Si l'utilisateur clique sur la même colonne, on inverse le sens. 
+    // S'il clique sur une nouvelle colonne, on réinitialise le tri en mode croissant (du plus petit au plus grand).
+    if (this.lastSort.colonne === critere) {
+      this.lastSort.smallToLarg = !this.lastSort.smallToLarg;
+    } else {
+      this.lastSort.colonne = critere;
+      this.lastSort.smallToLarg = true;
+    }
+
+    // Définition du multiplicateur (1 pour un tri croissant, -1 pour inverser et trier en décroissant).
+    const sensDuTri = this.lastSort.smallToLarg ? 1 : -1;
+
+    // 3. Synchronisation de la source de vérité : 
+    // On trie directement le tableau de données principal (this.monsters) pour que l'ordre 
+    // métier en mémoire corresponde exactement à l'ordre visuel, évitant ainsi toute désynchronisation.
+    this.monsters = [...this.monsters].sort((a, b) => {
+      // Si la propriété est du texte (ex: nom, type), on utilise localeCompare pour un tri alphabétique propre.
+      if (typeof a[critere] === "string") {
+        return a[critere].localeCompare(b[critere]) * sensDuTri;
+      }
+      // Sinon, s'il s'agit d'un nombre (ex: dangerLevel, year), on effectue une soustraction mathématique classique.
+      return (a[critere] - b[critere]) * sensDuTri;
+    });
+
+    // 4. Mise à jour performante du DOM sans destruction des éléments :
+    // Au lieu de vider le conteneur avec innerHTML = "" (ce qui détruirait les nœuds DOM et les états en cours),
+    // on parcourt le tableau trié et on déplace dynamiquement les lignes existantes (domElt) une à une 
+    // à la fin du tbody. Le navigateur réordonne les éléments instantanément.
+    const tbody = this.domElt.querySelector(".monsters-table tbody");
+    if (tbody) {
+      this.monsters.forEach((monster) => {
+        tbody.appendChild(monster.domElt);
+      });
+    }
+  }
+
+  // Charge les monstres depuis l'API, puis prépare leur affichage.
+  async loadMonsters() {
+    const monsters = await DB.findAll();
+    this.monsters = monsters.map((monster) => new Monster(monster));
+    this.render();
+  }
+
+  // Retourne le nombre de monstres actuellement en mémoire.
+  getMonstersCount() {
+    return this.monsters.length;
+  }
+
+  // Affiche le nombre de monstres dans le compteur de la page.
+  renderMonstersCount() {
+    this.domElt.querySelector(".monster-count").innerText =
+      this.getMonstersCount();
+  }
+
+  // Reconstruit le gabarit de la liste et affiche chaque monstre.
+  render() {
+    this.domElt.innerHTML = getTemplate();
+    this.listDomElt = this.domElt.querySelector(".monsters-list");
+    this.monsters.forEach((monster) => this.listDomElt.append(monster.render()));
+    this.renderMonstersCount();
+    this.initEvents();
+  }
+
+  // Crée le monstre dans l'API, puis l'ajoute à la liste affichée.
+  async addMonster(monster) {
+    const createdMonster = await DB.create(monster);
+    const newMonster = new Monster(createdMonster);
+    this.monsters.push(newMonster);
+    this.listDomElt.append(newMonster.render());
+    this.renderMonstersCount();
+  }
+
+  // Supprime le monstre de l'API et de la collection, puis actualise le compteur.
+  async deleteOneById(id) {
+    const monster = this.monsters.find((item) => item.id === id);
+  
+    await DB.deleteOneById(id);
+  
+    this.monsters.splice(this.monsters.indexOf(monster), 1);
+    monster.domElt.remove();
+    this.renderMonstersCount();
+  }
+  // Branche les événements du formulaire et des boutons de toutes les lignes.
+  initEvents() {
+    // --- GESTION DU TRI PAR COLONNE ---
+    // On écoute les clics sur l'ensemble du conteneur pour intercepter les liens d'en-tête possédant un "name"
+    this.domElt.addEventListener("click", (e) => {
+      console.log("Clic détecté sur :", e.target);
+      const lienTri = e.target.closest("a[name]");
+      if (lienTri) {
+        e.preventDefault(); // Empêche le lien de sauter en haut de page
+        const critere = lienTri.getAttribute("name"); // Récupère le critère (ex: "name", "dangerLevel", etc.)
+        this.trierMonstres(critere); // Appelle ta fonction de tri
+      }
+    });
+
+    // Formulaire d'ajout d'un monstre
+    const form = this.domElt.querySelector(".new-monster");
+    form.addEventListener("submit", async (e) => {
+      // Empêche le rechargement de la page lors de l'envoi du formulaire.
+      e.preventDefault();
+      // Lit les valeurs saisies dans le formulaire.
+      const formData = new FormData(form);
+  
+      // Construit une instance à partir des données du formulaire.
+      const monster = new Monster({
+        name: formData.get("monsterName"),
+        type: formData.get("monsterType"),
+        dangerLevel: Number(formData.get("dangerLevel")),
+        year: Number(formData.get("monsterYear")),
+      });
+  
+      // Ajoute le nouveau monstre, puis vide les champs du formulaire.
+      await this.addMonster(monster);
+      form.reset();
+    });
+ 
+    // Gestion des clics sur la liste (Délégation d'événements)
+    this.listDomElt.addEventListener("click", async (e) => {
+      // Cherche le bouton même si le clic a été fait sur son icône.
+      const button = e.target.closest("button");
+      if (!button) return;
+    
+      // Retrouve la ligne du monstre à partir du bouton cliqué.
+      const row = button.closest(".monster-row");
+      if (!row) return;
+    
+      // Associe la ligne HTML à son instance Monster.
+      const monster = this.monsters.find((item) => item.domElt === row);
+      if (!monster) return;
+    
+      // Supprime le monstre correspondant au bouton Delete.
+      if (button.classList.contains("btn-delete")) {
+        await this.deleteOneById(monster.id);
+      }
+    
+      // Passe la ligne en mode édition.
+      if (button.classList.contains("btn-edit")) {
+        console.log("Clic détecté sur le bouton check pour le monstre :", monster.id);
+        await monster.edit();
+      }
+    
+      // Enregistre les modifications saisies dans la ligne.
+      if (button.classList.contains("btn-check")) {
+        await monster.saveUpdate();
+      }
+      
+    });
+  }
+}
+</file>
+
+<file path="src/components/monsterList/template.js">
+export default function getTemplate() {
+  return `
+    <header class="text-center mb-10">
+    <p class="text-[var(--silver)] tracking-widest text-sm">A creature feature archive</p>
+    <h1 class="marquee text-6xl md:text-8xl my-3">Monster Archive</h1>
+    <p class="text-[var(--silver)] italic">
+      They rose from the deep between 1950 and 1969. Someone had to keep the records.
+    </p>
+    </header>
+   <main class="flex flex-col md:flex-row gap-8">
+    <!-- Aside gauche pour le formulaire -->
+    <aside class="deco-frame md:w-1/3 p-6 bg-[var(--murk)]/60 self-start">
+      <h2 class="display text-2xl mb-5 text-[var(--pearl)]">File a new creature</h2>
+  <form class="new-monster">
+      <label class="block mb-4 text-[var(--silver)]">
+        Name
+        <input name="monsterName" type="text" class="field" placeholder="The Crawling Mass" required />
+      </label>
+
+      <label class="block mb-4 text-[var(--silver)]">
+        Type
+        <select name="monsterType" class="field">
+          <option>Giant reptile</option>
+          <option>Alien</option>
+          <option>Mutant</option>
+          <option>Giant insect</option>
+          <option>Robot</option>
+          <option>Deep-sea creature</option>
+        </select>
+      </label>
+
+      <label class="block mb-4 text-[var(--silver)]">
+        Danger level (1 to 5)
+        <input name="dangerLevel" type="number" min="1" max="5" step="1" class="field" placeholder="3" required />
+      </label>
+
+      <label class="block mb-6 text-[var(--silver)]">
+        Release year
+        <input name="monsterYear" type="number" min="1950" max="1969" step="1" class="field" placeholder="1957" required />
+      </label>
+      <button type="submit" class="btn btn-lipstick w-full py-3 px-4 text-lg">Add to the archive</button>
+    </form>
+    </aside>
+
+    <!-- Section droite pour la liste des créatures -->
+    <section class="deco-frame md:w-2/3 p-6 bg-[var(--murk)]/40">
+      <div class="flex flex-wrap justify-between items-baseline gap-2 mb-5">
+        <h2 class="display text-2xl">The archive</h2>
+        <p class="text-[var(--silver)]">
+          Creatures on file :
+          <span class="display text-2xl text-[var(--gold)] monster-count">xxx</span>
+        </p>
+      </div>
+
+      <!-- Filtre de recherche -->
+      <input type="search" class="field mb-5" placeholder="Search by name or type" />
+
+      <!-- Liste des créatures triée et filtrée -->
+      <div class="overflow-x-auto">
+        <table class="monsters-table w-full">
+          <thead>
+            <tr>
+              <th class="text-left p-3"><a href="#" name="name">Name</a></th>
+              <th class="text-left p-3"><a href="#" name="type">Type</a></th>
+              <th class="text-left p-3"><a href="#" name="dangerLevel">Danger Level</a></th>
+              <th class="text-left p-3"><a href="#" name="year">Year</a></th>
+              <th class="text-right p-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="monsters-list">
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+      `;
+}
+</file>
+
+<file path="src/DB.js">
+export default class DB {
+    // Enregistre l'URL de base utilisée par toutes les requêtes.
+    static setApiURL(data) {        //reçoit l'adresse de base de l'API
+      this.apiURL = data;           //Mémorise cette adresse. Comme la méthode est static, on l'appelle avec DB.setApiUrl, pas sur une instance
+    }
+  
+    // Récupère tous les monstres depuis l'API.
+    static async findAll() {        
+                                    //déclare une méthode asynchrone pour récupérer tous les monstres
+      const response = await fetch(this.apiURL + "monsters/");
+                                    // envoie une requête HTTP à l’adresse de la liste des monstres et attend la réponse avant de continuer
+      return response.json();       //lit le contenu JSON et le retourne
+    }
+//----------------------------------
+// AJOUT D'UN MONSTRE
+//----------------------------------
+    // Envoie un nouveau monstre à l'API et retourne sa réponse.
+    static async create(monster){   //recoit les données du monstre à créer
+      const response = await fetch(this.apiURL + "monsters/", {
+                                    //envoie la requête à l'API avec des options
+        method: "POST",             //indique qu'il s'agit d'une création
+        headers: {"content-Type": "application/JSON"},
+                                    //le corps de la requête est en JSON
+        body: JSON.stringify(monster),//conversion du js en json pour l'envoi
+      });
+      return response.json();       //retour du monstre avec son id
+    }
+    //----------------------------------
+    // SUPPRESSION D'UN MONSTRE
+    //----------------------------------
+    // Supprime de l'API le monstre correspondant à l'id fourni.
+    static async deleteOneById(id){  //reçiot l'id à supprimer
+      const response = await fetch(this.apiURL + "monsters/" + id, {
+                                    //construit l'adresse ciblant le monstre
+        method: "DELETE"             // demande à l'API de supp le monstre
+      });
+      if (!response.ok) {
+        throw new Error(`Monster deletion failed: ${response.status}`);
+      }
+      return response;              //la réponse DELETE peut ne contenir aucun JSON
+    }
+    //----------------------------------
+    // MODIFICATION D'UN MONSTRE
+    //----------------------------------
+    // Remplace les données du monstre identifié
+    static async updateOne(id, monster){
+                                      //adresse des news infos du monstre
+      const response = await fetch(this.apiURL + "monsters/" + id, {
+        method: "PUT",                //demande de remplacement
+        headers: {"content-Type": "application/JSON"},
+        body: JSON.stringify(monster),//envoi des données en json
+      });
+      return response.json();         //retourne le contenu de la réponse
+    }
+  }
+</file>
+
+<file path="src/main.js">
+// Importe le composant qui charge et affiche la liste des monstres.
+import MonsterList from './components/monsterList/MonsterList';
+
+// Initialise la liste dans l'élément principal et configure l'API à utiliser.
+new MonsterList({
+  el: "#app",
+  apiURL: "https://6a4f4934f45d5352b6112e4b.mockapi.io/",
+});
+</file>
+
+<file path="src/style.css">
+:root {
+    --lagoon: #0c1c19;
+    --murk: #1d3a33;
+    --jade: #3f7566;
+    --pearl: #efeae0;
+    --silver: #b9b8b0;
+    --gold: #b8955a;
+    --lipstick: #a8131e;
+  }
+  body {
+    font-family: "Josefin Sans", system-ui, sans-serif;
+    font-weight: 300;
+    color: var(--pearl);
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(63, 117, 102, 0.35), transparent 60%),
+      radial-gradient(ellipse at 50% 120%, rgba(0, 0, 0, 0.8), transparent 60%),
+      var(--lagoon);
+    background-attachment: fixed;
+  }
+
+  /* Grain de pellicule */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.08;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Le titre : marquee argentée avec reflet d'eau */
+  .marquee {
+    font-family: "Limelight", Georgia, serif;
+    line-height: 1;
+    background: linear-gradient(100deg, #8d8c85 20%, #f7f4ec 45%, #8d8c85 70%);
+    background-size: 250% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shimmer 7s ease-in-out infinite;
+  }
+  @keyframes shimmer {
+    0%, 100% { background-position: 100% 0; }
+    50% { background-position: 0% 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee { animation: none; background-position: 50% 0; }
+  }
+
+  .deco-frame {
+    border: 1px solid var(--gold);
+    outline: 1px solid rgba(184, 149, 90, 0.4);
+    outline-offset: 5px;
+  }
+  .display {
+    font-family: "Limelight", Georgia, serif;
+    font-weight: 400;
+  }
+
+  .field {
+    display: block;
+    width: 100%;
+    margin-top: 0.35rem;
+    padding: 0.55rem 0.75rem;
+    background: rgba(12, 28, 25, 0.7);
+    color: var(--pearl);
+    border: 1px solid var(--jade);
+    border-radius: 2px;
+    font-weight: 400;
+  }
+  .field::placeholder { color: rgba(185, 184, 176, 0.55); }
+  .field option { background: var(--lagoon); }
+  .field:focus {
+    outline: 2px solid var(--gold);
+    outline-offset: 1px;
+  }
+  .btn {
+    border-radius: 2px;
+    font-weight: 600;
+    transition: background-color 0.2s, color 0.2s;
+  }
+  .btn:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+  }
+  .btn-gold {
+    border: 1px solid var(--gold);
+    color: var(--gold);
+  }
+  .btn-gold:hover { background: var(--gold); color: var(--lagoon); }
+  .btn-lipstick { background: var(--lipstick); color: var(--pearl); }
+  .btn-lipstick:hover { background: #c41d29; }
+  .btn-jade { background: var(--jade); color: var(--pearl); }
+  .btn-jade:hover { background: #4f8a79; }
+
+  .monsters-table th { font-weight: 600; color: var(--gold); }
+  .monsters-table thead a:hover { color: var(--pearl); }
+  .monsters-table tbody tr { border-top: 1px solid rgba(63, 117, 102, 0.4); }
+  .monsters-table tbody tr:nth-of-type(even) { background: rgba(239, 234, 224, 0.03); }
+
+  /* Affichage conditionnel : NE PAS MODIFIER */
+  .monsters-table tr:not(.isEditing) .isEditing-visible {
+    display: none;
+  }
+  .monsters-table tr.isEditing .isEditing-hidden {
+    display: none;
+  }
+</file>
+
+<file path=".gitignore">
+
+</file>
+
+<file path="index.html">
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>examen-sc-2026</title>
+    <link rel="stylesheet" href="src/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module" src="/src/main.js" defer></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  </head>
+  <body>
+    
+    <div id="app" class="max-w-6xl mx-auto"></div>
+    <footer class="text-center text-[var(--silver)] text-sm mt-10 italic">
+      &copy; EAFC 2026 Monster Archive. No creature was harmed during development.
+    </footer>
+    
+  </body>
+</html>
+</file>
+
+<file path="package.json">
+{
+  "name": "examen-sc-2026",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^8.3.0"
+  }
+}
+</file>
+
+</files>

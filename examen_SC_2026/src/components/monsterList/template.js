@@ -53,17 +53,17 @@ export default function getTemplate() {
       </div>
 
       <!-- Filtre de recherche -->
-      <input type="search" class="field mb-5" placeholder="Search by name or type" />
+      <input type="search" class="search field mb-5" placeholder="Search by name or type" />
 
       <!-- Liste des créatures triée et filtrée -->
       <div class="overflow-x-auto">
         <table class="monsters-table w-full">
           <thead>
             <tr>
-              <th class="text-left p-3"><a href="#">Name</a></th>
-              <th class="text-left p-3"><a href="#">Type</a></th>
-              <th class="text-left p-3"><a href="#">Danger</a></th>
-              <th class="text-left p-3"><a href="#">Year</a></th>
+              <th class="text-left p-3"><a href="#" name="name">Name</a></th>
+              <th class="text-left p-3"><a href="#" name="type">Type</a></th>
+              <th class="text-left p-3"><a href="#" name="dangerLevel">Danger Level</a></th>
+              <th class="text-left p-3"><a href="#" name="year">Year</a></th>
               <th class="text-right p-3">Actions</th>
             </tr>
           </thead>

@@ -34,7 +34,10 @@ export default class DB {
                                     //construit l'adresse ciblant le monstre
         method: "DELETE"             // demande à l'API de supp le monstre
       });
-      return response.json();       //retourne le contenu de la réponse
+      if (!response.ok) {
+        throw new Error(`Monster deletion failed: ${response.status}`);
+      }
+      return response;              //la réponse DELETE peut ne contenir aucun JSON
     }
     //----------------------------------
     // MODIFICATION D'UN MONSTRE
