@@ -1,4 +1,4 @@
-import DB from "../../DB";
+import DB, { monsterTypes } from "../../DB";
 import Monster from "../Monster/Monster";
 import getTemplate from "./template";
 
@@ -61,6 +61,7 @@ export default class MonsterList {
   // Charge les monstres depuis l'API, puis prépare leur affichage.
   async loadMonsters() {
     const monsters = await DB.findAll();
+    //transforme des données brutes (venant de ton API) en objets intelligents (des instances de ta classe Monster).
     this.monsters = monsters.map((monster) => new Monster(monster));
     this.render();
   }
@@ -78,7 +79,7 @@ export default class MonsterList {
 
   // Reconstruit le gabarit de la liste et affiche chaque monstre.
   render() {
-    this.domElt.innerHTML = getTemplate();
+    this.domElt.innerHTML = getTemplate(monsterTypes);
     this.listDomElt = this.domElt.querySelector(".monsters-list");
     this.monsters.forEach((monster) => this.listDomElt.append(monster.render()));
     this.renderMonstersCount();
@@ -95,7 +96,7 @@ export default class MonsterList {
   }
 
   // Supprime le monstre de l'API et de la collection, puis actualise le compteur.
-  async deleteOneById(id) {
+  async removeMonsterFromList(id) {
     const monster = this.monsters.find((item) => item.id === id);
   
     await DB.deleteOneById(id);
@@ -109,27 +110,27 @@ export default class MonsterList {
     // --- GESTION DU TRI PAR COLONNE ---   === Réalisé avec l'aide de l'agent J'y arrive pas ;)
     // On écoute les clics sur l'ensemble du conteneur pour intercepter les liens d'en-tête possédant un "name"
     this.domElt.addEventListener("click", (e) => {
-      console.log("Clic détecté sur :", e.target);
-      const lienTri = e.target.closest("a[name]");
-      if (lienTri) {
+     // console.log("Clic détecté sur :", e.target);
+      const sortTrigger = e.target.closest("a[name]");
+      if (sortTrigger) {
         e.preventDefault(); // Empêche le lien de sauter en haut de page
-        const param = lienTri.getAttribute("name"); // Récupère le critère (ex: "name", "dangerLevel", etc.)
+        const param = sortTrigger.getAttribute("name"); // Récupère le critère (ex: "name", "dangerLevel", etc.)
         this.sortMonsters(param); // Appelle ta fonction de tri
       }
     });
-    //Recherche
+    //--- RECHERCHE ---
     const searchInput = this.domElt.querySelector(".search");
     if (searchInput) {
       // 2. On écoute chaque frappe au clavier
       searchInput.addEventListener("input", (e) => {
         // A. On récupère le texte saisi en minuscules
-        const termeSaisi = e.target.value.toLowerCase().trim();
+        const searchTerm = e.target.value.toLowerCase().trim();
 
         // B. On filtre le tableau this.monsters
         const monstresFiltres = this.monsters.filter((monster) => {
           const nom = monster.name.toLowerCase();
           const type = monster.type.toLowerCase();
-          return nom.includes(termeSaisi) || type.includes(termeSaisi);
+          return nom.includes(searchTerm) || type.includes(searchTerm);
         });
 
         // C. On cible le tbody du tableau
@@ -184,7 +185,7 @@ export default class MonsterList {
     
       // Supprime le monstre correspondant au bouton Delete.
       if (button.classList.contains("btn-delete")) {
-        await this.deleteOneById(monster.id);
+        await this.removeMonsterFromList(monster.id);
       }
     
       // Passe la ligne en mode édition.

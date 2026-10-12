@@ -1,3 +1,14 @@
+// Afin d'optimiser encore un peu le code, j'ai décidé de créer ici une constante commune reprenant les options pour éviter les répétitions. MonsterType est appelé dans les render et dans les templates.
+
+export const monsterTypes = [
+  "Giant reptile",
+  "Alien",
+  "Mutant",
+  "Giant insect",
+  "Robot",
+  "Deep-sea creature"
+];
+
 export default class DB {
     // Enregistre l'URL de base utilisée par toutes les requêtes.
     static setApiURL(data) {        //reçoit l'adresse de base de l'API
@@ -52,4 +63,7 @@ export default class DB {
       });
       return response.json();         //retourne le contenu de la réponse
     }
+
   }
+
+  

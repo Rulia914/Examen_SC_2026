@@ -1,4 +1,4 @@
-export default function getTemplate() {
+export default function getTemplate(monsterTypes) {
   return `
     <header class="text-center mb-10">
     <p class="text-[var(--silver)] tracking-widest text-sm">A creature feature archive</p>
@@ -20,12 +20,7 @@ export default function getTemplate() {
       <label class="block mb-4 text-[var(--silver)]">
         Type
         <select name="monsterType" class="field">
-          <option>Giant reptile</option>
-          <option>Alien</option>
-          <option>Mutant</option>
-          <option>Giant insect</option>
-          <option>Robot</option>
-          <option>Deep-sea creature</option>
+        ${monsterTypes.map(type => `<option value="${type}">${type}</option>`).join("")}
         </select>
       </label>
 

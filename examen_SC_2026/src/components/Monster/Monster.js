@@ -1,4 +1,4 @@
-import DB from "../../DB";
+import DB, { monsterTypes } from "../../DB";
 import getTemplate from "./template";
 
 // Représente un monstre et synchronise ses données avec sa ligne HTML.
@@ -23,7 +23,7 @@ export default class Monster {
   render() {
     const template = document.createElement("template");
     //crée un conteneur HTML temporaire
-    template.innerHTML = getTemplate(this);
+    template.innerHTML = getTemplate(this, monsterTypes);
     //génère la ligne à partir des données de cette instance
     this.domElt = template.content.firstElementChild;
     //récupère l'élément racine
@@ -43,8 +43,10 @@ export default class Monster {
       .querySelector(".isEditing-hidden").textContent = this.name;
     //remonte à la cellule qui contient ce champ, cherche dans cette cellule l’élément prévu pour afficher le texte hors édition, actualise le texte visible.
 
-    // Met à jour le champ de sélection et le texte visible du type.
+    // Met à jour la valeur sélectionnée du select du type
     this.domElt.querySelector(".input-type").value = this.type;
+
+    // Met à jour le texte visible hors édition
     this.domElt
       .querySelector(".input-type")
       .closest("td")

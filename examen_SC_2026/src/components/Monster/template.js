@@ -1,4 +1,5 @@
-export default function getTemplate(monster) {
+export default function getTemplate(monster, monsterTypes) {
+ 
   return `
  
     <tr class="monster-row">
@@ -7,14 +8,11 @@ export default function getTemplate(monster) {
       <input type="text" class="input-name isEditing-visible field" value="${monster.name}" />
     </td>
     <td class="p-3">
-      <span class="isEditing-hidden">Deep-sea creature</span>
+      <span class="isEditing-hidden">${monster.type}</span>
       <select class="input-type isEditing-visible field">
-        <option>Giant reptile</option>
-        <option>Alien</option>
-        <option>Mutant</option>
-        <option>Giant insect</option>
-        <option>Robot</option>
-        <option selected>Deep-sea creature</option>
+      ${monsterTypes.map(type => `
+        <option ${type === monster.type ? 'selected' : ''}>${type}</option>
+      `).join("")}
       </select>
     </td>
     <td class="p-3 whitespace-nowrap">
